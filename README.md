@@ -50,8 +50,9 @@ Example:
     });
 
     getThings(2, 3, 4) === 10;
-    getThings(3, 2, 4) === 10; // 3 + 2 === 2 + 3, so the key is the same
-    getThings(2, 3, 5) === 10; // length is 2, so the third argument is ignored when constructing the key
+    getThings([2, 3, 4]) === 10; // array normalized to arguments
+    getThings(3, 2, 4) === 10;   // 3 + 2 === 2 + 3, so the key is the same
+    getThings(2, 3, 5) === 10;   // length is 2, so the third argument is ignored when constructing the key
 
 # LRU Methods
 Public methods of LRU instances are assigned to the returned function, so you can do things like peek or reset the cache:
