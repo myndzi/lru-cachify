@@ -1,0 +1,6 @@
+.git
+.gitignore
+.jshintrc
+coverage
+node_modules
+test.js

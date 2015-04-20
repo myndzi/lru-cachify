@@ -1,0 +1,25 @@
+{
+  "name": "lru-cachify",
+  "version": "1.0.0",
+  "description": "Wrap functions in lru-cache",
+  "main": "index.js",
+  "scripts": {
+    "test": "istanbul cover node_modules/.bin/_mocha -- -u bdd -R spec --bail test.js;jshint index.js"
+  },
+  "keywords": [
+    "lru",
+    "cache",
+    "wrapper"
+  ],
+  "author": "Kris Reeves",
+  "license": "ISC",
+  "dependencies": {
+    "lru-cache": "^2.6.1"
+  },
+  "devDependencies": {
+    "istanbul": "^0.3.13",
+    "jshint": "^2.7.0",
+    "mocha": "^2.2.4",
+    "should": "^6.0.1"
+  }
+}
