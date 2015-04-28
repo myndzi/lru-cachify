@@ -1,6 +1,7 @@
 'use strict';
 
-var LRU = require('lru-cache');
+var LRU = require('lru-cache'),
+    assert = require('assert');
 
 function getArgs() {
     var i = arguments.length, args = new Array(i);
@@ -26,7 +27,8 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10
     
     var cachified = function () {
         var args = normalizeArgs.apply(this, arguments);
-        var cacheKey = keyFn(args.slice(0, Math.min(len, args.length)));
+        assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
+        var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
 
         if (cache.has(cacheKey)) { return cache.get(cacheKey); }
 

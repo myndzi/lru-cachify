@@ -1,6 +1,6 @@
 {
   "name": "lru-cachify",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Wrap functions in lru-cache",
   "main": "index.js",
   "repository": {

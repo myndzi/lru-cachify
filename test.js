@@ -88,6 +88,27 @@ describe('Cachify', function () {
         
         calls.should.equal(2);
     });
+    it('should \'apply\' arguments to normalize function', function () {
+        var cached = cachify({
+            max: 1,
+            normalize: function (id, opts) {
+                arguments.length.should.equal(2);
+                return [id, opts];
+            }
+        }, function () { });
+        cached(1, 2);
+    });
+    it('should throw if normalize function does not return an array', function () {
+        var cached = cachify({
+            max: 1,
+            normalize: function (id, opts) {
+                arguments.length.should.equal(2);
+            }
+        }, function () { });
+        (function () {
+            cached(1, 2);
+        }).should.throw(/normalize must return an array/);
+    });
     it('should allow for argument shortening', function () {
         var calls = 0;
         var cached = cachify({
