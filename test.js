@@ -189,4 +189,13 @@ describe('Cachify', function () {
             });
         });
     });
+    it('should key on all arguments by default', function () {
+        var calls = 0;
+        var cached = cachify(function () {
+            calls++;
+        });
+        cached(1, 2);
+        cached(1, 3);
+        calls.should.equal(2);
+    });
 });

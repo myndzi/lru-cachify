@@ -9,6 +9,10 @@ function getArgs() {
     return args;
 }
 
+function stringify() {
+    return JSON.stringify(getArgs.apply(null, arguments));
+}
+
 module.exports = function (opts, fn) { // jshint maxcomplexity: 10
     if (typeof opts === 'function') {
         fn = opts;
@@ -18,7 +22,7 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10
     }
 
     var cache = LRU(opts),
-        keyFn = (typeof opts.key === 'function' ? opts.key : JSON.stringify);
+        keyFn = (typeof opts.key === 'function' ? opts.key : stringify);
     
     var len = parseInt(opts.length, 10);
     if (isNaN(len)) { len = Infinity; }
