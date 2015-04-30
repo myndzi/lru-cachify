@@ -1,7 +1,8 @@
 'use strict';
 
 var LRU = require('lru-cache'),
-    assert = require('assert');
+    assert = require('assert'),
+    debug = require('debug')('lru-cachify');
 
 function getArgs() {
     var i = arguments.length, args = new Array(i);
@@ -13,7 +14,7 @@ function stringify() {
     return JSON.stringify(getArgs.apply(null, arguments));
 }
 
-module.exports = function (opts, fn) { // jshint maxcomplexity: 10
+module.exports = function (opts, fn) { // jshint maxcomplexity: 10, maxstatements: 20
     if (typeof opts === 'function') {
         fn = opts;
         opts = { };
@@ -34,7 +35,12 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10
         assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
         var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
 
-        if (cache.has(cacheKey)) { return cache.get(cacheKey); }
+        if (cache.has(cacheKey)) {
+            debug('cache hit: %s', cacheKey);
+            return cache.get(cacheKey);
+        }
+        
+        debug('cache miss: %s', cacheKey);
 
         var res;
         
@@ -54,9 +60,35 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10
         return res;
     };
     
-    // inherit cache methods
+    cachified.peek = function () {
+        var args = normalizeArgs.apply(this, arguments);
+        assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
+        var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
+        
+        return cache.peek(cacheKey);
+    };
+    
+    cachified.delete =
+    cachified.del = function () {
+        var args = normalizeArgs.apply(this, arguments);
+        assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
+        var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
+        
+        debug('deleting: %s', cacheKey);
+        return cache.del(cacheKey);
+    };
+    
+    cachified.has = function () {
+        var args = normalizeArgs.apply(this, arguments);
+        assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
+        var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
+
+        return cache.has(cacheKey);
+    };
+    
+    // inherit other cache methods
     for (var key in cache) {
-        if (!/^_/.test(key) && typeof cache[key] === 'function') {
+        if (!/^_/.test(key) && typeof cache[key] === 'function' && !cachified.hasOwnProperty(key)) {
             cachified[key] = cache[key].bind(cache);
         }
     }
