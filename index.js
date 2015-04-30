@@ -25,6 +25,8 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10, maxstatement
     var cache = LRU(opts),
         keyFn = (typeof opts.key === 'function' ? opts.key : stringify);
     
+    var enabled = true;
+    
     var len = parseInt(opts.length, 10);
     if (isNaN(len)) { len = Infinity; }
     
@@ -35,26 +37,32 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10, maxstatement
         assert(Array.isArray(args), 'lru-cachify: normalize must return an array');
         var cacheKey = keyFn.apply(this, args.slice(0, Math.min(len, args.length)));
 
-        if (cache.has(cacheKey)) {
-            debug('cache hit: %s', cacheKey);
-            return cache.get(cacheKey);
+        if (enabled) {
+            if (cache.has(cacheKey)) {
+                debug('cache hit: %s', cacheKey);
+                return cache.get(cacheKey);
+            }
+            
+            debug('cache miss: %s', cacheKey);
+        } else {
+            debug('cache disabled, skipping: %s', cacheKey);
         }
-        
-        debug('cache miss: %s', cacheKey);
 
         var res;
         
         // throw synchronously = don't store
         res = fn.apply(this, args);
         
-        cache.set(cacheKey, res);
-        
-        if (res && typeof res.then === 'function') {
-            // if it's a promise, remove if it rejects
-            res.then(null, function (err) {
-                // don't store rejected promise
-                cache.del(cacheKey);
-            });
+        if (enabled) {
+            cache.set(cacheKey, res);
+            
+            if (res && typeof res.then === 'function') {
+                // if it's a promise, remove if it rejects
+                res.then(null, function (err) {
+                    // don't store rejected promise
+                    cache.del(cacheKey);
+                });
+            }
         }
         
         return res;
@@ -85,6 +93,9 @@ module.exports = function (opts, fn) { // jshint maxcomplexity: 10, maxstatement
 
         return cache.has(cacheKey);
     };
+    
+    cachified.disableCache = function () { enabled = false; };
+    cachified.enableCache = function () { enabled = true; };
     
     // inherit other cache methods
     for (var key in cache) {

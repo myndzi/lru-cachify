@@ -8,7 +8,7 @@
     "url": "https://github.com/myndzi/lru-cachify"
   },
   "scripts": {
-    "test": "istanbul cover node_modules/.bin/_mocha -- -u bdd -R spec --bail test.js;jshint index.js"
+    "test": "istanbul cover -x test.js node_modules/.bin/_mocha -- -u bdd -R spec --bail test.js;jshint index.js"
   },
   "keywords": [
     "lru",

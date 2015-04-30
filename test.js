@@ -25,6 +25,45 @@ describe('Cachify', function () {
         
         calls.should.equal(3);
     });
+    it('should default opts to an empty object', function () {
+        var calls = 0;
+        var cached = cachify(null, function (n) {
+            calls++;
+            return n;
+        });
+        
+        cached(3).should.equal(3);
+        cached(3).should.equal(3);
+        calls.should.equal(1);
+    });
+    it('should allow caching to be disabled/enabled', function () {
+        var calls = 0;
+        
+        var cached = cachify(function (n) {
+            calls++;
+            return n;
+        });
+        
+        cached(3).should.equal(3);
+        cached(3).should.equal(3);
+        
+        cached('foo').should.equal('foo');
+        cached('foo').should.equal('foo');
+        
+        var obj = { };
+        cached(obj).should.equal(obj);
+        cached(obj).should.equal(obj);
+        
+        calls.should.equal(3);
+        
+        cached.disableCache();
+        cached('foo').should.equal('foo');
+        calls.should.equal(4);
+        
+        cached.enableCache();
+        cached('foo').should.equal('foo');
+        calls.should.equal(4);
+    });
     it('should pass options to LRU', function () {
         var calls = 0;
         
@@ -87,6 +126,58 @@ describe('Cachify', function () {
         cached(null, { id: 3, foo: 'bar' }).should.eql(3);
         
         calls.should.equal(2);
+    });
+    it('should apply normalization to \'peek\'', function () {
+        var calls = 0;
+        var cached = cachify({
+            normalize: function (a, b) {
+                return [ a + b ];
+            }
+        }, function (key) {
+            calls++;
+            return key;
+        });
+        
+        cached('foo', 'bar').should.equal('foobar');
+        cached('fooba', 'r').should.equal('foobar');
+        calls.should.equal(1);
+        
+        cached.peek('fo', 'obar').should.equal('foobar');
+    });
+    it('should apply normalization to \'has\'', function () {
+        var calls = 0;
+        var cached = cachify({
+            normalize: function (a, b) {
+                return [ a + b ];
+            }
+        }, function (key) {
+            calls++;
+            return key;
+        });
+        
+        cached('foo', 'bar').should.equal('foobar');
+        cached('fooba', 'r').should.equal('foobar');
+        calls.should.equal(1);
+        
+        cached.has('fo', 'obar').should.equal(true);
+    });
+    it('should apply normalization to \'del\'', function () {
+        var calls = 0;
+        var cached = cachify({
+            normalize: function (a, b) {
+                return [ a + b ];
+            }
+        }, function (key) {
+            calls++;
+            return key;
+        });
+        
+        cached('foo', 'bar').should.equal('foobar');
+        cached('fooba', 'r').should.equal('foobar');
+        calls.should.equal(1);
+        
+        cached.del('fo', 'obar');
+        cached.has('foobar').should.equal(false);
     });
     it('should \'apply\' arguments to normalize function', function () {
         var cached = cachify({
