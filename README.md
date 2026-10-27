@@ -1,3 +1,7 @@
+# Archived
+
+Legacy / unused
+
 # lru-cachify
 
 Purpose: easily wrap a function to provide caching. Inspired by [memoizee](http://www.npmjs.com/package/memoizee), but simpler in some ways and with some extra / different functionality. Uses [lru-cache](http://www.npmjs.com/package/lru-cache) for the caching functionality itself.
